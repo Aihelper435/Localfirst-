@@ -101,17 +101,19 @@ Our patches don't add new functionality - they **improve discoverability** and *
 
 ---
 
-## 🚀 Quick Start
+## 🚀 Quick Start (Linux)
 
 Run IronClaw locally in 5 minutes without any cloud account:
 
 ### Step 1: Install Ollama
 
 ```bash
-# macOS/Linux
+# Install Ollama on Linux
 curl -fsSL https://ollama.com/install.sh | sh
 
-# Windows: Download from https://ollama.com/download
+# Start the Ollama service
+sudo systemctl start ollama
+sudo systemctl enable ollama  # Optional: enable on boot
 ```
 
 ### Step 2: Pull a Model
@@ -120,16 +122,32 @@ curl -fsSL https://ollama.com/install.sh | sh
 ollama pull llama3.2
 ```
 
-### Step 3: Set Up PostgreSQL
+### Step 3: Set Up PostgreSQL with pgvector
 
 ```bash
-# macOS
-brew install postgresql@15 pgvector
-brew services start postgresql@15
+# Debian/Ubuntu
+sudo apt update
+sudo apt install -y postgresql postgresql-contrib
+sudo apt install -y postgresql-15-pgvector  # For PostgreSQL 15
 
-# Create database
-createdb ironclaw
-psql ironclaw -c "CREATE EXTENSION IF NOT EXISTS vector;"
+# Fedora/RHEL
+# sudo dnf install -y postgresql-server postgresql-contrib
+# sudo dnf install -y pgvector_15  # For PostgreSQL 15
+
+# Arch Linux
+# sudo pacman -S postgresql
+# yay -S pgvector  # From AUR
+
+# Start PostgreSQL service
+sudo systemctl start postgresql
+sudo systemctl enable postgresql  # Optional: enable on boot
+
+# Create database and enable pgvector
+sudo -u postgres createdb ironclaw
+sudo -u postgres psql ironclaw -c "CREATE EXTENSION IF NOT EXISTS vector;"
+
+# Create a user (optional, for easier access)
+sudo -u postgres createuser --superuser $USER
 ```
 
 ### Step 4: Configure Environment
@@ -143,7 +161,15 @@ DATABASE_URL=postgres://localhost/ironclaw
 EOF
 ```
 
-### Step 5: Run IronClaw
+### Step 5: Install Rust (if not already installed)
+
+```bash
+# Install Rust using rustup
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+source ~/.cargo/env  # Load Rust environment
+```
+
+### Step 6: Run IronClaw
 
 ```bash
 cd ironclaw_project
@@ -151,6 +177,8 @@ cargo run -- --no-onboard
 ```
 
 🎉 **That's it!** No NEAR AI account, no cloud API keys needed.
+
+> **Note**: If using a different Linux distribution, package names and commands may vary. Refer to your distro's documentation for PostgreSQL and pgvector installation.
 
 ---
 
